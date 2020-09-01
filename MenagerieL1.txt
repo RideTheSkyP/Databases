@@ -1,0 +1,37 @@
+# 1
+SHOW TABLES;
+# 2
+SELECT owner, name from pet;
+# 3
+select birth from pet where species='dog';
+# 4
+select name from pet where MONTH(birth) < 7;
+# 5
+SELECT species from pet where sex='m';
+# 6
+SELECT name, date from event where remark like 'Gave%';
+# 7
+select owner from pet where name like '%ffy';
+# 8
+SELECT owner, name from pet where death IS NULL;
+# 9
+select owner, count(*) from pet GROUP BY owner HAVING count(*) > 1;
+# 10
+SELECT owner, name from pet where MONTH(birth) < MONTH(CURDATE()) and date(birth) < date(CURDATE());
+# 11
+select name from pet where year(birth)>1992 and DATE_FORMAT(birth, '%Y-%m') < '1994-07';
+# 12
+select name from pet where death is NULL ORDER BY birth LIMIT 2;
+# 13
+# SELECT name from pet ORDER BY birth DESC LIMIT 1
+# select pet1.name from pet as pet1 JOIN pet as pet2 ON pet1.birth<pet2.birth;
+# 14
+SELECT owner from pet join event e on pet.name = e.name WHERE e.date > (select date from event where name='Slim');
+# 15
+select owner from pet join event e on pet.name = e.name where type!='birthday' order by birth;
+# 16
+select p1.owner, p2.owner from pet as p1 join pet as p2 where p1.species=p2.species and p1.owner>p2.owner;
+# 17
+ALTER TABLE menagerie.event add column performer VARCHAR(255);
+# 18
+UPDATE event join pet p on event.name = p.name SET performer=owner WHERE type!='vet' and type!='litter';
