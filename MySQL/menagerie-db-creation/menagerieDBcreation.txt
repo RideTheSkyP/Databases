@@ -1,0 +1,14 @@
+CREATE DATABASE menagerie;
+
+USE menagerie;
+
+SOURCE cr_pet_tbl.sql
+
+LOAD DATA LOCAL INFILE 'pet.txt' INTO TABLE pet;
+
+SOURCE ins_puff_rec.sql
+
+SOURCE cr_event_tbl.sql
+
+LOAD DATA LOCAL INFILE 'event.txt' INTO TABLE event;
+

@@ -1,0 +1,23 @@
+1: List all the tables in the database.
+2: For each owner, write down only his name and the name of his pet.
+3: List the birth dates of all dogs.
+4: List the names of the dogs born in the first half of the year and the names of their owners.
+5: List the species of animals with males in the base.
+6: List the names of the animals and the date of the event that the animal received one gift.
+7: List the names of owners who own a pet with an ending name with the -ffy suffix.
+8: Similarly as in point 2, for each owner, write only his name and name of his pet, however only include owners with living pets.
+9: List owners who own more than one pet.
+10: List the names of the owners and the names of their dogs apart from those who cares birthday. Sort the result in descending order by the dog's name.
+11: List animals born between 1992 and June 1994.
+12: List the 2 oldest living animals.
+13: List the youngest living animal in a way that does not require sorting the data.
+14: List the names of the owners who have a pet for which the event occurred later than the visit to Slim's vet.
+15: List the names of owners who do not have a birthday pet. Sort the results in ascending order by the animal's date of birth.
+16: List pairs of names of owners who have the same species of animal. (Note: If there is a pair (X, Y), the result should not contain a pair (Y, X)).
+17: Add a performer column to the event table after the date, pointing to the person conducting the event.
+18: For all events, complete the performer column - all events by types other than vet and litter are carried out by the current owners, for these two types, complete the table with at least 2 different surnames vets.
+19: Change the value in the owner column for all cats to Diane.
+20: For each species, list the number of animals that belong to that species. Sort results in descending order.
+21: Delete information about dead animals from the database.
+22: Remove the death column from the pet table.
+23: Add information to the database about 3 new owners who have a total of 2 dogs, 1 hamster, 3 goats and 1 sheep. For each new pet, add at least one entry in the event table. Complete the fields so that there are no NULL values ​​in new entries.

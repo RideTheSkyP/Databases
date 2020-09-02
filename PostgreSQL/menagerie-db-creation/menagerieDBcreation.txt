@@ -1,0 +1,9 @@
+\i cr_pet_tbl.sql
+
+COPY pet FROM '$PATH/pet.txt'  DELIMITER AS ',';
+
+\i ins_puff_rec.sql
+
+\i cr_event_tbl.sql
+
+COPY event FROM '$PATH/event.txt'  DELIMITER AS '|';
