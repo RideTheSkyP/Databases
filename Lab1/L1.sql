@@ -136,4 +136,82 @@ SET FOREIGN_KEY_CHECKS=1;
 set @var = (select distinct CustomerId from Customer where CustomerId not in (select distinct CustomerId from Invoice));
 delete from Customer where CustomerId = @var;
 # 30
-select ArtistId from Artist where Name="Within Temptation";
+CREATE PROCEDURE add_track(
+	in track varchar(255),
+	in album varchar(255),
+	in artist varchar(255),
+ 	in mediatype_id int,
+	in genre varchar(255),
+	in composer varchar(255),
+	in milliseconds int,
+	in bytes int,
+	in unit_price int
+)
+adding_process: begin
+	declare artist_id int default 0;
+	declare album_id int default 0;
+	declare track_id int default 0;
+	declare genre_id int default 0;
+
+	if artist not in (select Name from Artist) then
+		set artist_id = (select max(ArtistId) from Artist) + 1;
+		insert into Artist values (artist_id, artist);
+	else
+		set artist_id = (select ArtistId from Artist where Name = artist);
+	end if;
+
+	if album not in (select Title from Album) then
+		set album_id = (select max(AlbumId) from Album) + 1;
+		insert into Album values (album_id, album, artist_id);
+	else
+		set album_id = (select AlbumId from Album where Title = album);
+	end if;
+
+	if genre not in (select Name from Genre) then
+		set genre_id = (select max(GenreId) from Genre) + 1;
+		insert into Genre values (genre_id, genre);
+	else
+		set genre_id = (select GenreId from Genre where Name = genre);
+	end if;
+
+	if (track not in (select Name from Track where Name = track))
+	and (album_id not in (select AlbumId from Track where Name = track)) then
+		set track_id = (select max(TrackId) from Track) + 1;
+		insert into Track values (track_id,
+								  track,
+								  album_id,
+								  mediatype_id,
+								  genre_id,
+								  composer,
+								  milliseconds,
+								  bytes,
+								  unit_price);
+	else
+		leave adding_process;
+	end if;
+end;
+
+call add_track('Who Ever Said', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Superblood Wolfmoon', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Dance of the Clairvoyants', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Quick Escape', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Alright', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Seven O`Clock', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Never Destination', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Take the Long Way', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Buckle Up', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('Retrograde', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+call add_track('River Cross', 'Gigaton', 'Pearl Jam', 2, 'Experimental rock', 'Vedder', 3212315, 1952902, 0.99);
+
+call add_track('Why Not Me', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Shot in the Dark', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('In the Middle of the Night', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Faster', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Fire and Ice', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Iron', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Where Is the Edge', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Sinéad', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Sinéad', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Murder', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('A Demon`s Fate', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
+call add_track('Stairway to the Skies', 'The Unforgiving', 'Within Temptation', 2, 'Symphonic metal', 'Sharon den AdelRobert Westerholt', 3212315, 1952902, 0.99);
