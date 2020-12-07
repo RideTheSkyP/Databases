@@ -80,11 +80,15 @@ begin
 end;
 
 drop procedure payments;
-call payments('AC/DC', 100000);
+call payments('AC/DC', 1000000);
 # 7
 sudo mysqldump -u push -p Music > Music.sql;
 drop database Music;
 mysql -u push -p Music < Music.sql
-
-
+# 9
+SHOW VARIABLES LIKE "secure_file_priv";
+select json_object('id', id, 'name', name, 'albumsAmount', albumsAmount) into outfile '/var/lib/mysql-files/Band.json' from Music.Band;
+select json_object('id', id, 'title', title, 'timeSec', timeSec, 'album', album, 'band', band) into outfile '/var/lib/mysql-files/Track.json' from Music.Track;
+select json_object('title', title, 'genre', genre, 'band', band) into outfile '/var/lib/mysql-files/Album.json' from Music.Album;
+#####
 
