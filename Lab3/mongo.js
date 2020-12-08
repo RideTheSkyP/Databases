@@ -71,3 +71,24 @@ db.Album.aggregate([
    {$project: {"Band.name": 1, _id:0}}
 ]);
 // 17
+// 18
+db.Album.find({genre: "Metal,Rock"}, {title:1, _id:0});
+// 19
+// 20
+db.Track.aggregate([
+    {
+        $group:
+        {
+            _id:
+            {
+                album:"$album"
+            },
+            duration:
+            {
+                $sum:"$timeSec"
+            }
+        }
+    },
+    {$sort:{duration:-1}},
+    {$limit:1}
+]);
