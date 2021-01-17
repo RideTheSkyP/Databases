@@ -1,0 +1,7 @@
+.idea
+Project/core/__pycache__/
+Project/core/migrations/
+Project/db.sqlite3
+Project/DbCreds.txt
+Project/SK.txt
+Project/website/__pycache__/
