@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %} Sign in {% endblock %}
+{% block content %}
+
+
+    <form method="post">
+        {% csrf_token %}
+        <h2>View player stats</h2>
+        <label for="playerId">Player id:</label><br>
+        <input id="playerId" name="playerId"><br>
+        <button onclick="toggleVisibility()">View player stats</button>
+        <h2>Modify player stats</h2>
+        <label for="userId">Player id:</label><br>
+        <input id="userId" name="userId"><br>
+        <label for="scoredPoints">Scored points:</label><br>
+        <input id="scoredPoints" name="scoredPoints"><br>
+        <label for="averagePoints">Average points:</label><br>
+        <input id="averagePoints" name="averagePoints"><br>
+        <label for="teamContribution">Team contribution:</label><br>
+        <input id="teamContribution" name="teamContribution"><br>
+        <label for="gamesAmount">Games amount:</label><br>
+        <input id="gamesAmount" name="gamesAmount"><br>
+        <label for="totalKills">Total kills</label><br>
+        <input id="totalKills" name="totalKills"><br>
+        <label for="totalAssists">Total kills</label><br>
+        <input id="totalAssists" name="totalAssists"><br>
+        <button>Modify</button>
+    </form>
+
+    <script>
+    function toggleVisibility() {
+        const element = document.getElementById("playerStats");
+        if (element.style.display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+    </script>
+
+    <table style="display: none" id="playerStats">
+        <tr>
+            <th>User id</th>
+            <th>Scored points</th>
+            <th>Average Points</th>
+            <th>Team Contribution</th>
+            <th>Games Amount</th>
+            <th>Total Kills</th>
+            <th>Total Assists</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            {% for item in transaction %}
+            <td> {{ item }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
@@ -8,7 +9,7 @@ from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import ugettext_lazy as _
-from core.models import Transfers
+from core.models import Player, PlayerStats
 from pathlib import Path
 from core.forms import SignUpForm
 from django.contrib.auth.decorators import user_passes_test
@@ -25,13 +26,15 @@ def startPage(request):
 
 @login_required()
 def home(request):
-    money = 50000
-    for transaction in Transfers.objects.raw(f"select * from core_transfers where userId={request.user.id}"):
-        money = transaction.money
-
-    accountNumber = request.user.id * 1321241212
-    data = {"money": money, "accountNumber": accountNumber}
-    return render(request, "home.html", context=data)
+    data = 0
+    access = ["User", "Moderator", "Admin"]
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
+        data = int(cursor.fetchall()[0][0])
+    except Exception as exc:
+        print(f"Home page database: {exc}")
+    return render(request, "home.html", {"data": f"Yours privileges level is: {access[data]}"})
 
 
 @user_passes_test(lambda u: u.is_anonymous, login_url="home")
@@ -63,33 +66,88 @@ def statistics(request):
 
 @login_required()
 def transfer(request):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
+        data = cursor.fetchall()[0]
+        if int(data[0]) < 1:
+            return render(request, "home.html", {"data": f"You dont have access to modification the players stats"})
+    except Exception as exc:
+        print(f"Transfer page database: {exc}")
+
     if request.method == "POST":
-        userId = request.user.id
-        transferFrom = request.POST.get("transferfrom")
-        transferTo = request.POST.get("transferto")
-        amount = float(request.POST.get("amount"))
-        save = request.POST.get("save")
+        userId = request.POST.get("playerId")
+        scoredPoints = request.POST.get("scoredPoints")
+        averagePoints = request.POST.get("averagePoints")
+        teamContribution = request.POST.get("teamContribution")
+        gamesAmount = request.POST.get("gamesAmount")
+        totalKills = request.POST.get("totalKills")
+        totalAssists = request.POST.get("totalAssists")
 
-        money = 50000
-        for transaction in Transfers.objects.raw(f"select * from core_transfers where userId={request.user.id}"):
-            money = float(transaction.money)
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""SELECT userId = %s FROM core_playerstats""", [userId])
+            data = cursor.fetchall()
+            if not data:
+                return render(request, "home.html", {"data": f"Player {userId} doesn't exist"})
+        except Exception as exc:
+            print(f"Transfer page post database: {exc}")
 
-        if (transferTo == transferFrom) or (int(transferFrom) != int(request.user.id) * 1321241212) \
-                or (save != "true") or (amount > money):
-            return redirect("home")
-        else:
-            transfers = Transfers(userId=userId, transferFrom=transferFrom, transferTo=transferTo, amount=amount, money=money-amount)
-            transfers.save()
-            return render(request, "transactionComplete.html")
-
+        transfers = PlayerStats(userId=userId, scoredPoints=scoredPoints, averagePoints=averagePoints,
+                                teamContribution=teamContribution, gamesAmount=gamesAmount, totalKills=totalKills,
+                                totalAssists=totalAssists)
+        transfers.save()
+        return render(request, "transactionComplete.html")
     return render(request, "bankForm.html")
+
+
+@login_required()
+def recoverGame(request):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
+        data = cursor.fetchall()[0]
+        if int(data[0]) < 2:
+            return render(request, "home.html", {"data": f"You dont have access to modification the players stats"})
+    except Exception as exc:
+        print(f"Transfer page database: {exc}")
+
+    if request.method == "POST":
+        userId = request.POST.get("userId")
+        playerId = request.POST.get("playerId")
+        scoredPoints = request.POST.get("scoredPoints")
+        averagePoints = request.POST.get("averagePoints")
+        teamContribution = request.POST.get("teamContribution")
+        gamesAmount = request.POST.get("gamesAmount")
+        totalKills = request.POST.get("totalKills")
+        totalAssists = request.POST.get("totalAssists")
+
+        try:
+            if playerId:
+                cursor = connection.cursor()
+                cursor.execute("""SELECT * FROM core_playerstats WHERE userId=%s""", [playerId])
+                form = cursor.fetchall()
+                print(form)
+                return render(request, "recovery.html", {"form": form})
+
+            if userId:
+                transfers = PlayerStats(userId=userId, scoredPoints=scoredPoints, averagePoints=averagePoints,
+                                        teamContribution=teamContribution, gamesAmount=gamesAmount,
+                                        totalKills=totalKills, totalAssists=totalAssists)
+                transfers.save()
+                return render(request, "transactionComplete.html")
+        except Exception as exc:
+            print(f"Transfer page post database: {exc}")
+
+    return render(request, "recovery.html")
 
 
 @login_required()
 def transactionsHistory(request):
     transactions = []
-    for t in Transfers.objects.raw(f"select * from core_transfers where userId={request.user.id}"):
-        transactions.append([t.transferFrom, t.transferTo, t.amount, t.money])
+    for t in PlayerStats.objects.raw(f"select * from core_playerstats where userId={request.user.id}"):
+        transactions.append([t.userId, t.scoredPoints, t.averagePoints, t.teamContribution, t.gamesAmount,
+                             t.totalKills, t.totalAssists])
     return render(request, "transactionsHistory.html", {"transactions": transactions})
 
 

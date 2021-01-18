@@ -17,16 +17,11 @@ from django.contrib.messages import constants as message_constants
 
 MESSAGE_LEVEL = message_constants.INFO
 
-# with(open("FBCreds.txt")) as file:
-#    fb = file.read().split(sep=";")
-
 with(open("SK.txt")) as file:
     key = file.read().split(sep=";")[0]
 
-# with(open("DbCreds.txt")) as file:
-#    string = file.read().split("\n")
-#    db1 = string[0].split(";")
-#    db2 = string[1].split(";")
+with(open("DbCreds.txt")) as file:
+   db = file.read().split(";")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -95,44 +90,16 @@ WSGI_APPLICATION = "website.wsgi.application"
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 
-# if os.getenv("GAE_APPLICATION", None):
-#     # Running on production App Engine, so connect to Google Cloud SQL using
-#     # the unix socket at /cloudsql/<your-cloudsql-connection string>
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.mysql",
-#             "HOST": db1[0],
-#             "USER": db1[1],
-#             "PASSWORD": db1[2],
-#             "NAME": db1[3],
-#         }
-#     }
-# else:
-#     # Running locally so connect to either a local MySQL instance or connect to
-#     # Cloud SQL via the proxy. To start the proxy via command line:
-#     #
-#     #     $ cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:3306
-#     #
-#     # See https://cloud.google.com/sql/docs/mysql-connect-proxy
-#     DATABASES = {
-#         'default': {
-#             "ENGINE": "django.db.backends.mysql",
-#             "HOST": db2[0],
-#             "PORT": db2[1],
-#             "NAME": db2[2],
-#             "USER": db2[3],
-#             "PASSWORD": db2[4],
-#         }
-#     }
-
-# if os.getenv("TRAMPOLINE_CI", None):
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3")
-    }
+        'default': {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": db[0],
+            "PORT": db[1],
+            "NAME": db[2],
+            "USER": db[3],
+            "PASSWORD": db[4],
+        }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

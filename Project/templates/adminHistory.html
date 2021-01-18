@@ -1,0 +1,48 @@
+{% extends "recovery.html" %}
+{% block main %}
+    <style>
+    table
+    {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th
+    {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even)
+    {
+        background-color: #dddddd;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <h2>Games History</h2>
+
+    <table>
+        <tr>
+            <th>User id</th>
+            <th>Scored points</th>
+            <th>Average Points</th>
+            <th>Team Contribution</th>
+            <th>Games Amount</th>
+            <th>Total Kills</th>
+            <th>Total Assists</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            {% for item in transaction %}
+            <td> {{ item }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    </body>
+{% endblock %}

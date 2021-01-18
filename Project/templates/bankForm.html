@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %} Sign in {% endblock %}
+{% block content %}
+    <h2>Modify player stats</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="playerId">Player id:</label><br>
+        <input type="number" id="playerId" name="playerId"><br>
+        <label for="scoredPoints">Scored points:</label><br>
+        <input type="number" id="scoredPoints" name="scoredPoints"><br>
+        <label for="averagePoints">Average points:</label><br>
+        <input id="averagePoints" name="averagePoints"><br>
+        <label for="teamContribution">Team contribution:</label><br>
+        <input id="teamContribution" name="teamContribution"><br>
+        <label for="gamesAmount">Games amount:</label><br>
+        <input id="gamesAmount" name="gamesAmount"><br>
+        <label for="totalKills">Total kills</label><br>
+        <input id="totalKills" name="totalKills"><br>
+        <label for="totalAssists">Total assists</label><br>
+        <input id="totalAssists" name="totalAssists"><br>
+        <button>Replace</button>
+    </form>
+
+    <div class="row">
+    <div class="col-md-8 mx-auto social-container my-2 order-md-1"></div>
+    </div>
+    <main>
+        {% block success %}
+        {% endblock %}
+    </main>
+{% endblock %}

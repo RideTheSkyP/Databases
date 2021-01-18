@@ -1,9 +1,16 @@
 from django.db import models
 
 
-class Transfers(models.Model):
+class Player(models.Model):
 	userId = models.IntegerField()
-	transferFrom = models.IntegerField()
-	transferTo = models.IntegerField()
-	amount = models.FloatField()
-	money = models.FloatField(default=50000)
+	privilege = models.IntegerField(default=0)
+
+
+class PlayerStats(models.Model):
+	userId = models.IntegerField()
+	scoredPoints = models.IntegerField()
+	averagePoints = models.IntegerField()
+	teamContribution = models.FloatField()
+	gamesAmount = models.IntegerField()
+	totalKills = models.IntegerField()
+	totalAssists = models.IntegerField()
