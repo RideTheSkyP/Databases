@@ -9,11 +9,13 @@ from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import ugettext_lazy as _
+from django.core.management import call_command
 from core.models import Player, PlayerStats
 from pathlib import Path
 from core.forms import SignUpForm
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 
 BASE = Path(__file__).resolve().parent.parent
@@ -27,7 +29,7 @@ def startPage(request):
 @login_required()
 def home(request):
     data = 0
-    access = ["User", "Moderator", "Admin"]
+    access = ["Player", "Moderator", "Admin"]
     try:
         cursor = connection.cursor()
         cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
@@ -113,7 +115,6 @@ def recoverGame(request):
         print(f"Transfer page database: {exc}")
 
     if request.method == "POST":
-        userId = request.POST.get("userId")
         playerId = request.POST.get("playerId")
         scoredPoints = request.POST.get("scoredPoints")
         averagePoints = request.POST.get("averagePoints")
@@ -122,24 +123,93 @@ def recoverGame(request):
         totalKills = request.POST.get("totalKills")
         totalAssists = request.POST.get("totalAssists")
 
-        try:
-            if playerId:
-                cursor = connection.cursor()
-                cursor.execute("""SELECT * FROM core_playerstats WHERE userId=%s""", [playerId])
-                form = cursor.fetchall()
-                print(form)
-                return render(request, "recovery.html", {"form": form})
-
-            if userId:
-                transfers = PlayerStats(userId=userId, scoredPoints=scoredPoints, averagePoints=averagePoints,
+        action = request.POST.get("action")
+        if action == "banPlayerId":
+            user = User.objects.filter(id=playerId)
+            user.delete()
+            return render(request, "home.html", {"data": f"User: {playerId} deleted from database"})
+        elif action == "modifyPlayerStats":
+            try:
+                transfers = PlayerStats(userId=playerId, scoredPoints=scoredPoints, averagePoints=averagePoints,
                                         teamContribution=teamContribution, gamesAmount=gamesAmount,
                                         totalKills=totalKills, totalAssists=totalAssists)
                 transfers.save()
                 return render(request, "transactionComplete.html")
-        except Exception as exc:
-            print(f"Transfer page post database: {exc}")
-
+            except Exception as exc:
+                print(f"Transfer page post database: {exc}")
+                return render(request, "home.html", {"data": f"User: {playerId} doesn't exists"})
+        elif action == "viewPlayerStats":
+            cursor = connection.cursor()
+            cursor.execute("""SELECT auth_user.id, auth_user.username, scoredPoints, averagePoints, teamContribution, gamesAmount, totalKills, totalAssists FROM core_playerstats INNER JOIN auth_user ON auth_user.id=userId WHERE userId=%s""", [playerId])
+            form = cursor.fetchall()
+            return render(request, "recovery.html", {"stats": form})
     return render(request, "recovery.html")
+
+
+@login_required()
+def dumpDatabase(request):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
+        data = cursor.fetchall()[0]
+        if int(data[0]) < 2:
+            return render(request, "home.html", {"data": f"You don't have access to dump the database"})
+    except Exception as exc:
+        print(f"Transfer page database: {exc}")
+
+    dump = request.POST.get("dump")
+    if dump:
+        try:
+            if dump == "dumpToJson":
+                with open("dump.json", "w") as dumpFile:
+                    call_command("dumpdata", format="json", indent=4, stdout=dumpFile)
+                    dumpFile.close()
+                    dump = "JSON"
+            elif dump == "dumpToXml":
+                with open("dump.xml", "w") as dumpFile:
+                    call_command("dumpdata", format="xml", indent=4, stdout=dumpFile)
+                    dumpFile.close()
+                    dump = "XML"
+            elif dump == "dumpToYaml":
+                with open("dump.yaml", "w") as dumpFile:
+                    call_command("dumpdata", format="yaml", indent=4, stdout=dumpFile)
+                    dumpFile.close()
+                    dump = "YAML"
+            return render(request, "dumpDatabase.html", {"data": f"Dumped to {dump} successfully"})
+        except Exception as e:
+            print(e)
+            return render(request, "dumpDatabase.html", {"data": f"Dump to {dump} haven't proceed"})
+    return render(request, "dumpDatabase.html")
+
+
+@login_required()
+def loadDatabase(request):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT privilege FROM core_player WHERE userId = %s""", [request.user.id])
+        data = cursor.fetchall()[0]
+        if int(data[0]) < 2:
+            return render(request, "home.html", {"data": f"You don't have access to load the database"})
+    except Exception as exc:
+        print(f"Transfer page database: {exc}")
+
+    dump = request.POST.get("dump")
+    if dump:
+        try:
+            if dump == "dumpToJson":
+                dump = "dump.json"
+                call_command("loaddata", dump)
+            elif dump == "dumpToXml":
+                dump = "dump.xml"
+                call_command("loaddata", dump)
+            elif dump == "dumpToYaml":
+                dump = "dump.yaml"
+                call_command("loaddata", dump)
+            return render(request, "loadDatabase.html", {"data": f"Dump: {dump}, loaded successfully"})
+        except Exception as e:
+            print(e)
+            return render(request, "loadDatabase.html", {"data": f"Load database from: {dump}, haven't proceed"})
+    return render(request, "loadDatabase.html")
 
 
 @login_required()

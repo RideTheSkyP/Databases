@@ -11,6 +11,6 @@ class PlayerStats(models.Model):
 	scoredPoints = models.IntegerField()
 	averagePoints = models.IntegerField()
 	teamContribution = models.FloatField()
-	gamesAmount = models.IntegerField()
+	gamesAmount = models.IntegerField(default=0)
 	totalKills = models.IntegerField()
 	totalAssists = models.IntegerField()

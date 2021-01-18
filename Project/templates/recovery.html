@@ -2,17 +2,41 @@
 
 {% block title %} Sign in {% endblock %}
 {% block content %}
+    <style>
+    table
+    {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
+    td, th
+    {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
 
-    <form method="post">
+    tr:nth-child(even)
+    {
+        background-color: #dddddd;
+    }
+    </style>
+
+    <h2><a href="javascript:toggleVisibility('modifyStats');">Modify player stats</a> / <a href="javascript:toggleVisibility('banPlayer');">Ban player</a> / <a href="javascript:toggleVisibility('playerStats');">Find player</a></h2>
+
+    <form method="POST" style="display: none" id="banPlayer">
         {% csrf_token %}
-        <h2>View player stats</h2>
+        <h2>Ban player</h2>
         <label for="playerId">Player id:</label><br>
         <input id="playerId" name="playerId"><br>
-        <button onclick="toggleVisibility()">View player stats</button>
-        <h2>Modify player stats</h2>
-        <label for="userId">Player id:</label><br>
-        <input id="userId" name="userId"><br>
+        <button type="submit" name="action" value="banPlayerId">Ban player</button>
+    </form>
+
+    <form method="POST" style="display: none" id="modifyStats">
+        {% csrf_token %}
+        <label for="playerId">Player id:</label><br>
+        <input id="playerId" name="playerId"><br>
         <label for="scoredPoints">Scored points:</label><br>
         <input id="scoredPoints" name="scoredPoints"><br>
         <label for="averagePoints">Average points:</label><br>
@@ -25,37 +49,66 @@
         <input id="totalKills" name="totalKills"><br>
         <label for="totalAssists">Total kills</label><br>
         <input id="totalAssists" name="totalAssists"><br>
-        <button>Modify</button>
+        <button type="submit" name="action" value="modifyPlayerStats">Modify</button>
     </form>
 
-    <script>
-    function toggleVisibility() {
-        const element = document.getElementById("playerStats");
-        if (element.style.display === "none") {
-            element.style.display = "block";
-        } else {
-            element.style.display = "none";
-        }
-    }
-    </script>
+    <form method="POST" style="display: none" id="playerStats">
+        {% csrf_token %}
+        <h2>View player stats</h2>
+        <label for="playerId">Player id:</label><br>
+        <input id="playerId" name="playerId"><br>
+        <button type="submit" name="action" value="viewPlayerStats">View player stats</button>
+    </form>
 
-    <table style="display: none" id="playerStats">
+    {% if stats %}
+        <table style="display: block" id="bestPlayersTable">
         <tr>
-            <th>User id</th>
-            <th>Scored points</th>
+            <th>Player Id</th>
+            <th>Nickname</th>
+            <th>Scored Points</th>
             <th>Average Points</th>
             <th>Team Contribution</th>
             <th>Games Amount</th>
             <th>Total Kills</th>
-            <th>Total Assists</th>
+            <th>Total assists</th>
         </tr>
-        {% for transaction in transactions %}
-        <tr>
-            {% for item in transaction %}
-            <td> {{ item }}</td>
+        {% for row in stats %}
+            <tr>
+            {% for item in row %}
+                <td> {{ item }}</td>
             {% endfor %}
-        </tr>
+            </tr>
         {% endfor %}
-    </table>
+        </table>
+    {% endif %}
+    <script>
+        function toggleVisibility(id)
+        {
+            const element = document.getElementById(id);
+            const oppositeElements = ["modifyStats", "playerStats", "banPlayer"];
+            const index = oppositeElements.indexOf(id)
+            console.log(element)
+            if (index > -1)
+            {
+                oppositeElements.splice(index, 1)
+            }
 
+            if (element.style.display === "none")
+            {
+                for(const oppElem in oppositeElements)
+                {
+                    const elem = document.getElementById(oppositeElements[oppElem])
+                    if (elem.style.display !== "none")
+                    {
+                        elem.style.display = "none"
+                    }
+                }
+                element.style.display = "block";
+            }
+            else
+            {
+                element.style.display = "none";
+            }
+        }
+    </script>
 {% endblock %}

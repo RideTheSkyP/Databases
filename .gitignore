@@ -5,3 +5,6 @@ Project/db.sqlite3
 Project/DbCreds.txt
 Project/SK.txt
 Project/website/__pycache__/
+Project/dump.xml
+Project/dump.json
+Project/dump.yaml

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %} Load database from dump {% endblock %}
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        <h2 style="text-align: center;">Load database from dump</h2>
+        <div style="text-align: center;"><button type="submit" name="dump" value="dumpToJson">Load from json</button></div>
+        <div style="text-align: center;"><button type="submit" name="dump" value="dumpToXml">Load from xml</button></div>
+        <div style="text-align: center;"><button type="submit" name="dump" value="dumpToYaml">Load from yaml</button></div>
+    </form>
+
+    <h2 style="text-align: center;"> {{ data }} </h2>
+
+{% endblock %}
