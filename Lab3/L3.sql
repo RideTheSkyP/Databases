@@ -1,7 +1,19 @@
 # 1
 
 # 2
+create procedure compareToStatistics(IN rel varchar(10), IN agg varchar(10))
+begin
+    if (rel='=' or rel='<' or rel='>' or rel='>=' or rel='<=') then
+        if(agg='max' or agg='min' or agg='std' or agg='avg') then
+            set @stmt = concat('select *, (select ', agg, '(timeSec) from Track) as statistics from Track having timeSec ' , rel ,' statistics');
+            prepare st from @stmt;
+            execute st;
+        end if;
+    end if;
+end;
 
+drop procedure compareToStatistics;
+call compareToStatistics('<', 'std');
 # 3
 create table Musicians(
     id int auto_increment primary key,
@@ -16,14 +28,14 @@ begin
     declare cnt int unsigned default 0;
     set @num = (select count(*) from Music.Band);
     while cnt < @num do
-        set @curPeople = 0;
+        set @currentPerson = 0;
         set @people = (select floor(rand() * (7-1) + 1));
-        while @curPeople < @people do
+        while @currentPerson < @people do
             set @name = (select floor(rand() * (100000-1) + 1));
             set @surname = (select floor(rand() * (100000-1) + 1));
             set @salary = (select floor(rand() * (100000-1000) + 1000));
             insert into Musicians(name, surname, band, salary) select @name, @surname, cnt+1, @salary;
-            set @curPeople = @curPeople + 1;
+            set @currentPerson = @currentPerson + 1;
         end while;
         set cnt = cnt + 1;
     end while;
@@ -44,7 +56,7 @@ begin
         insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
         select Band.name from Band inner join Musicians on Band.id = Musicians.band where Musicians.name=nm;
     else
-        SELECT name FROM Band ORDER BY RAND() LIMIT 1;
+        select name from Band order by rand() limit 1;
     end if;
 end;
 
@@ -59,7 +71,7 @@ begin
         insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
         select Band.name from Band inner join Musicians on Band.id = Musicians.band inner join Passwords on Band.id=Passwords.id where Musicians.name=nm and Passwords.password=md5(password);
     else
-        SELECT name FROM Band ORDER BY RAND() LIMIT 1;
+        select name from Band order by rand() limit 1;
     end if;
 end;
 
@@ -117,7 +129,7 @@ sudo mysqldump -u push -p Music > Music.sql;
 drop database Music;
 mysql -u push -p Music < Music.sql
 # 9
-SHOW VARIABLES LIKE "secure_file_priv";
+show variables like "secure_file_priv";
 select json_object('id', id, 'name', name, 'albumsAmount', albumsAmount) into outfile '/var/lib/mysql-files/Band.json' from Music.Band;
 select json_object('id', id, 'title', title, 'timeSec', timeSec, 'album', album, 'band', band) into outfile '/var/lib/mysql-files/Track.json' from Music.Track;
 select json_object('title', title, 'genre', genre, 'band', band) into outfile '/var/lib/mysql-files/Album.json' from Music.Album;
