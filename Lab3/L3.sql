@@ -50,11 +50,39 @@ end;
 
 drop procedure hashPassword;
 call hashPassword('22467', 'pass');
-# 5
-create procedure curToBand(in band varchar(70))
+
+create procedure checkPassword(in nm varchar(150), in password varchar(256))
 begin
-    declare salaryCur cursor for (select salary from Musicians inner join Band on Musicians.band = Band.id where Band.name=band);
+    set @st = (select count(*) from Musicians where Musicians.name=nm);
+    if @st = 1
+    then
+        insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
+        select Band.name from Band inner join Musicians on Band.id = Musicians.band inner join Passwords on Band.id=Passwords.id where Musicians.name=nm and Passwords.password=md5(password);
+    else
+        SELECT name FROM Band ORDER BY RAND() LIMIT 1;
+    end if;
+end;
+
+drop procedure checkPassword;
+call checkPassword('22', 'pass');
+# 5
+create procedure curToBand(in bnd varchar(70))
+begin
+    declare cursorVar int default 0;
+    declare done int default 0;
+    declare salaryList varchar(255) default '';
+    declare salaryCur cursor for (select salary from Musicians inner join Band on Musicians.band = Band.id where Band.name=bnd);
+    declare continue handler for not found set done = 1;
     open salaryCur;
+    cur: LOOP
+        fetch salaryCur into cursorVar;
+        if done = 1 then
+            leave cur;
+        end if;
+        set salaryList = concat(cursorVar, ';', salaryList);
+    end loop;
+    select salaryList;
+    close salaryCur;
 end;
 
 drop procedure curToBand;
@@ -66,12 +94,15 @@ begin
     DECLARE salaryOfMember int;
     declare salaryCur cursor for (select salary from Musicians inner join Band on Musicians.band = Band.id where Band.name=band);
     open salaryCur;
+    start transaction;
     while cnt < (select count(*) from Musicians inner join Band on Musicians.band = Band.id where Band.name=band) do
         fetch salaryCur into salaryOfMember;
         set amount = amount - salaryOfMember;
         set cnt = cnt + 1;
     end while;
+    COMMIT;
     if amount < 0 then
+        rollback;
         select 'There is not correct amount of money, payment canceled';
     else
         select concat('Payment accepted, paid out to ', cnt, ' members, cash left: ', amount);
@@ -90,5 +121,4 @@ SHOW VARIABLES LIKE "secure_file_priv";
 select json_object('id', id, 'name', name, 'albumsAmount', albumsAmount) into outfile '/var/lib/mysql-files/Band.json' from Music.Band;
 select json_object('id', id, 'title', title, 'timeSec', timeSec, 'album', album, 'band', band) into outfile '/var/lib/mysql-files/Track.json' from Music.Track;
 select json_object('title', title, 'genre', genre, 'band', band) into outfile '/var/lib/mysql-files/Album.json' from Music.Album;
-#####
 

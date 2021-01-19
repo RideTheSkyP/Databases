@@ -1,11 +1,21 @@
-// 9, 10, 11, 12, 14
+// 9, 11, 12, 14
 use MDBMusic;
 db.createCollection("Band");
-db.createCollection("Album")
-db.createCollection("Track")
-// mongoimport --db MDBMusic --collection Band --file ~/Desktop/Band.json
-// mongoimport --db MDBMusic --collection Track --file ~/Desktop/Track.json
-// mongoimport --db MDBMusic --collection Album --file ~/Desktop/Album.json
+db.createCollection("Album");
+db.createCollection("Track");
+// mongoimport --db MDBMusic --collection Band --file ~/Desktop/band.json
+// mongoimport --db MDBMusic --collection Track --file ~/Desktop/song.json
+// mongoimport --db MDBMusic --collection Album --file ~/Desktop/album.json
+// 10
+db.Band.insertMany([
+   { name: "Nokaut", country: "Macedonia"},
+   { name: "Superhiks", country: "Macedonia"},
+   { name: "Leb i sol", country: "Macedonia"},
+   { name: "Blla Blla Blla", country: "Macedonia"},
+   { name: "Arhangel", country: "Macedonia"}
+]);
+//db.Band.updateMany({}, {$unset: { item: 1}});
+//db.Band.deleteOne({name: "Arhangel"})
 // 13
 show collections;
 // 15
@@ -74,6 +84,12 @@ db.Album.aggregate([
 // 18
 db.Album.find({genre: "Metal,Rock"}, {title:1, _id:0});
 // 19
+db.Band.find({country: "North Macedonia"})
+db.Band.updateMany(
+    {country: "Macedonia"},
+    {$set: {country: "North Macedonia"}},
+    {upsert: true}
+);
 // 20
 db.Track.aggregate([
     {
