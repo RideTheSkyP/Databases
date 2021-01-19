@@ -54,9 +54,7 @@ begin
     if @st = 1
     then
         insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
-        select Band.name from Band inner join Musicians on Band.id = Musicians.band where Musicians.name=nm;
-    else
-        select name from Band order by rand() limit 1;
+#         select Band.name from Band inner join Musicians on Band.id = Musicians.band where Musicians.name=nm;
     end if;
 end;
 
@@ -68,7 +66,7 @@ begin
     set @st = (select count(*) from Musicians where Musicians.name=nm);
     if @st = 1
     then
-        insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
+#         insert into Passwords(id, password) select id, md5(password) from Musicians where Musicians.name=nm;
         select Band.name from Band inner join Musicians on Band.id = Musicians.band inner join Passwords on Band.id=Passwords.id where Musicians.name=nm and Passwords.password=md5(password);
     else
         select name from Band order by rand() limit 1;
@@ -112,7 +110,7 @@ begin
         set amount = amount - salaryOfMember;
         set cnt = cnt + 1;
     end while;
-    COMMIT;
+
     if amount < 0 then
         rollback;
         select 'There is not correct amount of money, payment canceled';
@@ -120,6 +118,7 @@ begin
         select concat('Payment accepted, paid out to ', cnt, ' members, cash left: ', amount);
     end if;
     close salaryCur;
+    COMMIT;
 end;
 
 drop procedure payments;
