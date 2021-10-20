@@ -26,11 +26,8 @@ select distinct title from film as f
     where date(rental_date) between '2005-05-25' and '2005-05-30' order by title;
 # 8
 select title from film as f where rating='R' order by length desc limit 5;
-# 9 -
-select *, count(*) over (partition by staff_id) from customer as c
-    inner join payment p on c.customer_id = p.customer_id;
-
-select c.customer_id from customer as c inner join payment p on c.customer_id = p.customer_id;
+# 9
+select first_name, last_name from customer where customer_id in (select distinct p1.customer_id from payment p1 join payment p2 where p1.customer_id=p2.customer_id and p1.staff_id<>p2.staff_id);
 # 10
 select concat(first_name, ' ', last_name)
 from (select c.customer_id as ci, count(*) as cnt from customer as c
